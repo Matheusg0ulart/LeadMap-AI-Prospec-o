@@ -628,11 +628,8 @@ export class SearchComponent implements OnInit, OnDestroy {
         zoomControl: true
       }).setView([-23.5393, -46.5760], 14);
 
-      // Usando CartoDB Voyager: CDN ultra-rápido com servidor em SP, sem bloqueio de tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(this.map);
 
       this.markersLayer = L.layerGroup().addTo(this.map);
