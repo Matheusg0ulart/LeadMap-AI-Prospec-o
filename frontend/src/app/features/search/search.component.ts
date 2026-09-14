@@ -343,14 +343,16 @@ import { BusinessModalComponent } from '../../shared/components/business-modal.c
     }
     .map-column {
       height: 100%;
-      min-height: 450px;
+      min-height: 520px;
       border-radius: 0.75rem;
       overflow: hidden;
       position: relative;
+      background-color: #f1f5f9;
     }
     .map-view {
       width: 100%;
       height: 100%;
+      min-height: 520px;
     }
     .list-column {
       height: 100%;
@@ -517,11 +519,13 @@ export class SearchComponent implements OnInit, OnDestroy {
         // Delay para garantir que o *ngIf já renderizou o container do mapa
         setTimeout(() => {
           this.initOrUpdateMap();
-          // Força o Leaflet a recalcular dimensões do container
+        }, 150);
+
+        setTimeout(() => {
           if (this.map) {
             this.map.invalidateSize();
           }
-        }, 300);
+        }, 500);
       },
       error: (err) => {
         this.loading = false;
@@ -617,20 +621,25 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   private initOrUpdateMap() {
-    if (!this.mapContainerRef) return;
+    if (!this.mapContainerRef || !this.mapContainerRef.nativeElement) return;
 
     if (!this.map) {
       this.map = L.map(this.mapContainerRef.nativeElement, {
         zoomControl: true
       }).setView([-23.5393, -46.5760], 14);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      // Usando CartoDB Voyager: CDN ultra-rápido com servidor em SP, sem bloqueio de tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
       }).addTo(this.map);
 
       this.markersLayer = L.layerGroup().addTo(this.map);
+    }
 
-      // Força Leaflet a recalcular dimensões após o container estar visível
+    // Força Leaflet a recalcular dimensões imediatamente e após render
+    if (this.map) {
       this.map.invalidateSize();
     }
 
@@ -669,7 +678,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             <div style="font-size: 12px; color: ${b.website ? '#16a34a' : '#dc2626'}; font-weight: 600; margin-bottom: 4px;">
               🌐 ${b.website ? 'Site informado' : 'Site não encontrado'}
             </div>
-            <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">📞 ${b.phone ? 'Telefone disponível' : 'Sem telefone'}</div>
+            <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">📞 ${b.phone ? b.phone : 'Sem telefone'}</div>
             <div style="font-size: 12px; font-weight: 700; color: #2563eb; margin-bottom: 8px;">Score: ${b.leadScore}/100</div>
             <div style="display: flex; gap: 6px;">
               <button id="popup-btn-${b.id}" style="padding: 4px 8px; background: #2563eb; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600;">Ver detalhes</button>
