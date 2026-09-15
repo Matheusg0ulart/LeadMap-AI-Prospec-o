@@ -21,16 +21,22 @@ public class SiteDemoDto {
     // AI Generated Copy & Theming
     private String headline;
     private String subheadline;
+    private String slogan;
     private String primaryCta;
-    private String theme; // "amber", "emerald", "gold-dark", "blue", "slate"
+    private String theme; // "amber", "emerald", "gold-dark", "blue", "slate", "purple", "crimson", "indigo"
     private String primaryColor;
     private String accentColor;
+    private String heroImageUrl;
+    private List<String> galleryImages;
     private String aboutTitle;
     private String aboutText;
     private List<ServiceItemDto> services;
+    private List<PillarDto> pillars;
     private List<String> highlights;
     private List<TestimonialDto> testimonials;
+    private List<FaqDto> faqs;
     private String businessHours;
+    private Boolean aiPowered;
 
     public SiteDemoDto() {
     }
@@ -38,17 +44,23 @@ public class SiteDemoDto {
     public static class ServiceItemDto {
         private String title;
         private String description;
-        private String icon; // "star", "check-circle", "shield", "heart", "sparkles", "truck", "scissors", "utensils"
+        private String icon; // "star", "check-circle", "shield", "heart", "sparkles", "truck", "scissors", "utensils", "tag"
         private String tag;
+        private String priceBadge;
 
         public ServiceItemDto() {
         }
 
         public ServiceItemDto(String title, String description, String icon, String tag) {
+            this(title, description, icon, tag, null);
+        }
+
+        public ServiceItemDto(String title, String description, String icon, String tag, String priceBadge) {
             this.title = title;
             this.description = description;
             this.icon = icon;
             this.tag = tag;
+            this.priceBadge = priceBadge;
         }
 
         public String getTitle() {
@@ -81,6 +93,82 @@ public class SiteDemoDto {
 
         public void setTag(String tag) {
             this.tag = tag;
+        }
+
+        public String getPriceBadge() {
+            return priceBadge;
+        }
+
+        public void setPriceBadge(String priceBadge) {
+            this.priceBadge = priceBadge;
+        }
+    }
+
+    public static class PillarDto {
+        private String title;
+        private String description;
+        private String icon; // "star", "shield", "check-circle", "sparkles", "heart", "clock", "award", "truck"
+
+        public PillarDto() {
+        }
+
+        public PillarDto(String title, String description, String icon) {
+            this.title = title;
+            this.description = description;
+            this.icon = icon;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getIcon() {
+            return icon;
+        }
+
+        public void setIcon(String icon) {
+            this.icon = icon;
+        }
+    }
+
+    public static class FaqDto {
+        private String question;
+        private String answer;
+
+        public FaqDto() {
+        }
+
+        public FaqDto(String question, String answer) {
+            this.question = question;
+            this.answer = answer;
+        }
+
+        public String getQuestion() {
+            return question;
+        }
+
+        public void setQuestion(String question) {
+            this.question = question;
+        }
+
+        public String getAnswer() {
+            return answer;
+        }
+
+        public void setAnswer(String answer) {
+            this.answer = answer;
         }
     }
 
@@ -333,5 +421,53 @@ public class SiteDemoDto {
 
     public void setBusinessHours(String businessHours) {
         this.businessHours = businessHours;
+    }
+
+    public String getSlogan() {
+        return slogan;
+    }
+
+    public void setSlogan(String slogan) {
+        this.slogan = slogan;
+    }
+
+    public String getHeroImageUrl() {
+        return heroImageUrl;
+    }
+
+    public void setHeroImageUrl(String heroImageUrl) {
+        this.heroImageUrl = heroImageUrl;
+    }
+
+    public List<String> getGalleryImages() {
+        return galleryImages;
+    }
+
+    public void setGalleryImages(List<String> galleryImages) {
+        this.galleryImages = galleryImages;
+    }
+
+    public List<PillarDto> getPillars() {
+        return pillars;
+    }
+
+    public void setPillars(List<PillarDto> pillars) {
+        this.pillars = pillars;
+    }
+
+    public List<FaqDto> getFaqs() {
+        return faqs;
+    }
+
+    public void setFaqs(List<FaqDto> faqs) {
+        this.faqs = faqs;
+    }
+
+    public Boolean getAiPowered() {
+        return aiPowered;
+    }
+
+    public void setAiPowered(Boolean aiPowered) {
+        this.aiPowered = aiPowered;
     }
 }

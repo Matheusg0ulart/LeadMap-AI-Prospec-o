@@ -2,7 +2,14 @@ export interface DemoServiceItem {
   title: string;
   description: string;
   icon: string;
-  tag: string;
+  tag?: string;
+  priceBadge?: string;
+}
+
+export interface DemoPillar {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 export interface DemoTestimonial {
@@ -10,6 +17,12 @@ export interface DemoTestimonial {
   comment: string;
   rating: number;
   timeAgo: string;
+}
+
+export interface DemoFaq {
+  question: string;
+  answer: string;
+  open?: boolean;
 }
 
 export interface SiteDemo {
@@ -29,14 +42,21 @@ export interface SiteDemo {
 
   headline: string;
   subheadline: string;
+  slogan?: string;
   primaryCta: string;
   theme: string;
   primaryColor: string;
   accentColor: string;
+  heroImageUrl?: string;
+  galleryImages?: string[];
   aboutTitle: string;
   aboutText: string;
   services: DemoServiceItem[];
+  pillars?: DemoPillar[];
   highlights: string[];
   testimonials: DemoTestimonial[];
+  faqs?: DemoFaq[];
   businessHours: string;
+  aiPowered?: boolean;
 }
+

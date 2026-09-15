@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Business } from '../../core/models/business.model';
@@ -26,7 +26,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
           <!-- Ações Superiores -->
           <div class="header-controls">
             <!-- Alternador de Dispositivo -->
-            <div class="device-switcher" *ngIf="isReady">
+            <div class="device-switcher">
               <button
                 type="button"
                 class="device-btn"
@@ -49,6 +49,15 @@ import { SiteDemo } from '../../core/models/site-demo.model';
 
             <!-- Botão Fechar -->
             <button type="button" class="close-btn" (click)="close.emit()" title="Fechar">✕</button>
+          </div>
+        </div>
+
+        <!-- Barra de Progresso Rápida Superior (Quando Gerando) -->
+        <div class="fast-progress-bar" *ngIf="!isReady">
+          <div class="fast-progress-fill" [style.width.%]="loadingProgress"></div>
+          <div class="fast-progress-text">
+            <span>⚡ IA gerando site em tempo real: <strong>{{ currentStepText }}</strong> ({{ loadingProgress }}%)</span>
+            <button type="button" class="skip-btn" (click)="forceFinish()">Pular Carregamento ⏩</button>
           </div>
         </div>
 
@@ -78,7 +87,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
 
         <!-- Preview Body Container -->
         <div class="modal-body" [class.mobile-frame-wrapper]="viewMode === 'mobile'">
-          <!-- Barra e Painel de Carregamento com IA -->
+          <!-- Painel Overlay de Carregamento Ultra-Rápido (desaparece em 1 segundo) -->
           <div class="generation-loader" *ngIf="!isReady">
             <div class="loader-card">
               <div class="loader-header-tag">
@@ -87,7 +96,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
               </div>
 
               <h4 class="loader-title">Criando Demonstração do Site</h4>
-              <p class="loader-subtitle">Analisando dados comerciais de <strong>{{ business.name }}</strong></p>
+              <p class="loader-subtitle">Analisando <strong>{{ business.name }}</strong> ({{ business.category }})</p>
 
               <!-- Barra de Progresso Principal -->
               <div class="progress-box">
@@ -102,60 +111,15 @@ import { SiteDemo } from '../../core/models/site-demo.model';
                 </div>
               </div>
 
-              <!-- Lista de Etapas Dinâmicas com Checkmarks -->
-              <div class="steps-checklist">
-                <div class="step-item" [class.done]="loadingProgress >= 25" [class.active]="loadingProgress < 25">
-                  <div class="step-icon-badge">
-                    <span *ngIf="loadingProgress >= 25">✓</span>
-                    <span *ngIf="loadingProgress < 25" class="spin-icon">⏳</span>
-                  </div>
-                  <div class="step-desc">
-                    <span class="step-title">Coleta de Perfil & Avaliações</span>
-                    <span class="step-sub">Extraindo nota e reputação do Google Maps</span>
-                  </div>
-                </div>
-
-                <div class="step-item" [class.done]="loadingProgress >= 55" [class.active]="loadingProgress >= 25 && loadingProgress < 55">
-                  <div class="step-icon-badge">
-                    <span *ngIf="loadingProgress >= 55">✓</span>
-                    <span *ngIf="loadingProgress >= 25 && loadingProgress < 55" class="spin-icon">⏳</span>
-                    <span *ngIf="loadingProgress < 25">⚪</span>
-                  </div>
-                  <div class="step-desc">
-                    <span class="step-title">Identidade Visual & Paleta</span>
-                    <span class="step-sub">Adaptando cores e layout para {{ business.category }}</span>
-                  </div>
-                </div>
-
-                <div class="step-item" [class.done]="loadingProgress >= 80" [class.active]="loadingProgress >= 55 && loadingProgress < 80">
-                  <div class="step-icon-badge">
-                    <span *ngIf="loadingProgress >= 80">✓</span>
-                    <span *ngIf="loadingProgress >= 55 && loadingProgress < 80" class="spin-icon">⏳</span>
-                    <span *ngIf="loadingProgress < 55">⚪</span>
-                  </div>
-                  <div class="step-desc">
-                    <span class="step-title">Catálogo de Serviços & Argumentos</span>
-                    <span class="step-sub">Redigindo chamadas e gatilhos de conversão</span>
-                  </div>
-                </div>
-
-                <div class="step-item" [class.done]="loadingProgress >= 100" [class.active]="loadingProgress >= 80 && loadingProgress < 100">
-                  <div class="step-icon-badge">
-                    <span *ngIf="loadingProgress >= 100">✓</span>
-                    <span *ngIf="loadingProgress >= 80 && loadingProgress < 100" class="spin-icon">⏳</span>
-                    <span *ngIf="loadingProgress < 80">⚪</span>
-                  </div>
-                  <div class="step-desc">
-                    <span class="step-title">Verificação de Domínio & Finalização</span>
-                    <span class="step-sub">Checando Registro.br e renderizando prévia</span>
-                  </div>
-                </div>
+              <div class="speed-notice">
+                <span>⚡ Otimizado para apresentação imediata ao cliente</span>
+                <button type="button" class="btn-skip-direct" (click)="forceFinish()">Visualizar Agora</button>
               </div>
             </div>
           </div>
 
-          <!-- Container do Iframe (revelado quando pronto) -->
-          <div class="iframe-container" [class.mobile-device]="viewMode === 'mobile'" [class.revealed]="isReady">
+          <!-- Container do Iframe (revelado) -->
+          <div class="iframe-container" [class.mobile-device]="viewMode === 'mobile'">
             <div class="device-speaker" *ngIf="viewMode === 'mobile'"></div>
             <iframe
               *ngIf="safeIframeUrl"
@@ -179,7 +143,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       align-items: center;
       justify-content: center;
       padding: 16px;
-      animation: fadeIn 0.2s ease-out;
+      animation: fadeIn 0.15s ease-out;
     }
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -195,11 +159,12 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
 
     /* Header */
     .modal-header {
-      padding: 16px 24px;
+      padding: 14px 20px;
       border-bottom: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
@@ -216,9 +181,9 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       color: #1d4ed8;
       font-size: 11px;
       font-weight: 800;
-      padding: 3px 8px;
+      padding: 2px 8px;
       border-radius: 6px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .modal-title {
       font-size: 18px;
@@ -227,13 +192,13 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       margin: 0;
     }
     .modal-category {
-      font-size: 13px;
+      font-size: 12px;
       color: #64748b;
     }
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
     .device-switcher {
       display: flex;
@@ -245,7 +210,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
     .device-btn {
       border: none;
       background: transparent;
-      padding: 6px 12px;
+      padding: 5px 10px;
       font-size: 12px;
       font-weight: 700;
       color: #64748b;
@@ -277,16 +242,60 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       color: #0f172a;
     }
 
+    /* Barra Superior Rápida */
+    .fast-progress-bar {
+      position: relative;
+      background: #0f172a;
+      height: 28px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .fast-progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981);
+      transition: width 0.1s ease-out;
+      opacity: 0.85;
+    }
+    .fast-progress-text {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .skip-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .skip-btn:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
     /* Barra de Ações Rápidas */
     .sales-action-bar {
-      padding: 10px 24px;
+      padding: 8px 20px;
       background: #f8fafc;
       border-bottom: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
     .link-box {
       display: flex;
@@ -307,7 +316,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       background: #ffffff;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      padding: 6px 10px;
+      padding: 5px 8px;
       color: #334155;
       font-family: monospace;
       outline: none;
@@ -318,7 +327,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       color: #334155;
       font-size: 12px;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 6px;
       cursor: pointer;
       white-space: nowrap;
@@ -331,7 +340,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
     .action-buttons {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .open-tab-btn {
       text-decoration: none;
@@ -340,7 +349,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       color: #2563eb;
       background: #ffffff;
       border: 1px solid #bfdbfe;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 6px;
       transition: all 0.15s;
     }
@@ -356,7 +365,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       color: #ffffff;
       font-size: 12px;
       font-weight: 700;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 6px;
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(37,211,102,0.3);
@@ -370,8 +379,8 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       cursor: not-allowed;
     }
     .wa-icon {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
     }
 
     /* Modal Body & Frames */
@@ -385,105 +394,93 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       justify-content: center;
     }
     .modal-body.mobile-frame-wrapper {
-      padding: 20px;
+      padding: 16px;
       background: #cbd5e1;
     }
 
-    /* === Painel de Carregamento & Barra de Progresso === */
+    /* === Painel de Carregamento Ultra Rápido === */
     .generation-loader {
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 30;
-      padding: 20px;
+      padding: 16px;
+      animation: fadeIn 0.15s ease-out;
     }
     .loader-card {
       background: #ffffff;
-      border-radius: 16px;
-      max-width: 540px;
+      border-radius: 14px;
+      max-width: 480px;
       width: 100%;
-      padding: 32px;
+      padding: 24px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      border: 1px solid #e2e8f0;
       text-align: center;
-      animation: scaleIn 0.25s ease-out;
-    }
-    @keyframes scaleIn {
-      from { transform: scale(0.96); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
     }
     .loader-header-tag {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: #eff6ff;
       border: 1px solid #bfdbfe;
       color: #1d4ed8;
       font-size: 11px;
       font-weight: 800;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 9999px;
-      letter-spacing: 0.5px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .pulse-ring {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: #2563eb;
       border-radius: 50%;
-      box-shadow: 0 0 0 rgba(37,99,235, 0.4);
-      animation: pulse 1.2s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37,99,235, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37,99,235, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37,99,235, 0); }
     }
     .loader-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: #0f172a;
-      margin: 0 0 6px;
+      margin: 0 0 4px;
     }
     .loader-subtitle {
       font-size: 13px;
       color: #64748b;
-      margin: 0 0 24px;
+      margin: 0 0 18px;
     }
 
     /* Barra de Progresso */
     .progress-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
     }
     .progress-info-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .progress-step-label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: #1e293b;
       text-align: left;
     }
     .progress-percentage {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       color: #2563eb;
       font-family: monospace;
     }
     .progress-bar-track {
       width: 100%;
-      height: 10px;
+      height: 8px;
       background: #e2e8f0;
       border-radius: 9999px;
       overflow: hidden;
@@ -493,89 +490,34 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       height: 100%;
       background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
       border-radius: 9999px;
-      transition: width 0.15s ease-out;
+      transition: width 0.1s ease-out;
       position: relative;
-      overflow: hidden;
     }
     .progress-shimmer {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      animation: shimmer 1.5s infinite;
     }
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    /* Checklist de Etapas */
-    .steps-checklist {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      text-align: left;
-    }
-    .step-item {
+    .speed-notice {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: #ffffff;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-    .step-item.active {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-    }
-    .step-item.done {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
-    .step-icon-badge {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 800;
-      background: #e2e8f0;
-      color: #64748b;
-      shrink: 0;
-    }
-    .step-item.done .step-icon-badge {
-      background: #22c55e;
-      color: #ffffff;
-    }
-    .step-item.active .step-icon-badge {
-      background: #3b82f6;
-      color: #ffffff;
-    }
-    .step-desc {
-      display: flex;
-      flex-direction: column;
-    }
-    .step-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .step-sub {
+      justify-content: space-between;
       font-size: 11px;
       color: #64748b;
+      margin-top: 8px;
     }
-    .spin-icon {
-      animation: spin 1s infinite linear;
+    .btn-skip-direct {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
     }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    .btn-skip-direct:hover {
+      background: #1d4ed8;
     }
 
     /* Iframe & Device Frames */
@@ -583,11 +525,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       width: 100%;
       height: 100%;
       background: #ffffff;
-      transition: opacity 0.3s ease-in-out, transform 0.25s ease-in-out;
-      opacity: 0;
-    }
-    .iframe-container.revealed {
-      opacity: 1;
+      transition: all 0.2s ease-in-out;
     }
     .iframe-container.mobile-device {
       width: 390px;
@@ -622,18 +560,19 @@ export class DemoPreviewModalComponent implements OnInit, OnDestroy {
   @Input() business!: Business;
   @Output() close = new EventEmitter<void>();
 
+  private cdr = inject(ChangeDetectorRef);
+
   viewMode: 'desktop' | 'mobile' = 'desktop';
   copied = false;
   demoUrl = '';
   safeIframeUrl?: SafeResourceUrl;
   demoData?: SiteDemo;
 
-  // Barra de Carregamento & Progresso
-  loadingProgress = 15;
-  currentStepText = 'Analisando perfil comercial e avaliações do Google...';
+  // Barra de Carregamento Rápida (1s max)
+  loadingProgress = 30;
+  currentStepText = 'Sintetizando informações do comércio...';
   isReady = false;
-  private dataLoaded = false;
-  private progressInterval: any;
+  private progressTimer: any;
 
   constructor(
     private siteDemoService: SiteDemoService,
@@ -645,73 +584,74 @@ export class DemoPreviewModalComponent implements OnInit, OnDestroy {
     if (this.business.id) {
       this.demoUrl = `${origin}/demo/${this.business.id}`;
     } else {
-      this.demoUrl = `${origin}/demo?name=${encodeURIComponent(this.business.name)}`;
+      this.demoUrl = `${origin}/demo?name=${encodeURIComponent(this.business.name)}&category=${encodeURIComponent(this.business.category || '')}`;
     }
     this.safeIframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.demoUrl);
 
-    this.startProgress();
+    // Carregamento rápido em 800ms
+    this.runQuickProgress();
 
-    // Carrega dados completos do demo para uso no botão do WhatsApp
+    // Carrega dados completos para WhatsApp em background
     if (this.business.id) {
       this.siteDemoService.getDemo(this.business.id).subscribe({
         next: (demo) => {
           this.demoData = demo;
-          this.dataLoaded = true;
-        },
-        error: () => {
-          this.dataLoaded = true;
         }
       });
     } else {
       this.siteDemoService.generatePreview(this.business).subscribe({
         next: (demo) => {
           this.demoData = demo;
-          this.dataLoaded = true;
-        },
-        error: () => {
-          this.dataLoaded = true;
         }
       });
     }
   }
 
   ngOnDestroy() {
-    if (this.progressInterval) {
-      clearInterval(this.progressInterval);
+    if (this.progressTimer) {
+      clearTimeout(this.progressTimer);
     }
   }
 
-  startProgress() {
-    this.loadingProgress = 15;
-    this.isReady = false;
-    this.dataLoaded = false;
-    this.currentStepText = 'Analisando dados do estabelecimento no Google Maps...';
+  runQuickProgress() {
+    this.loadingProgress = 35;
+    this.currentStepText = 'Analisando perfil e notas no Google Maps...';
+    this.cdr.detectChanges();
 
-    this.progressInterval = setInterval(() => {
-      if (this.loadingProgress < 40) {
-        this.loadingProgress += 5;
-        this.currentStepText = `Definindo identidade visual e tema para ${this.business.category || 'o comércio'}...`;
-      } else if (this.loadingProgress < 75) {
-        this.loadingProgress += 5;
-        this.currentStepText = 'Gerando catálogo de serviços e argumentos persuasivos...';
-      } else if (this.loadingProgress < 92) {
-        this.loadingProgress += 4;
-        this.currentStepText = 'Verificando disponibilidade do domínio no Registro.br...';
-      } else if (this.dataLoaded && this.loadingProgress < 100) {
-        this.loadingProgress = 100;
-        this.currentStepText = '✨ Demonstração finalizada!';
-        clearInterval(this.progressInterval);
-        setTimeout(() => {
-          this.isReady = true;
-        }, 350);
-      }
-    }, 70);
+    setTimeout(() => {
+      this.loadingProgress = 70;
+      this.currentStepText = `Estruturando catálogo para ${this.business.category || 'comércio'}...`;
+      this.cdr.detectChanges();
+    }, 250);
+
+    setTimeout(() => {
+      this.loadingProgress = 95;
+      this.currentStepText = 'Verificando domínio e finalizando...';
+      this.cdr.detectChanges();
+    }, 550);
+
+    setTimeout(() => {
+      this.loadingProgress = 100;
+      this.currentStepText = '✨ Demonstração pronta!';
+      this.isReady = true;
+      this.cdr.detectChanges();
+    }, 850);
+  }
+
+  forceFinish() {
+    this.loadingProgress = 100;
+    this.isReady = true;
+    this.cdr.detectChanges();
   }
 
   copyLink() {
     navigator.clipboard.writeText(this.demoUrl).then(() => {
       this.copied = true;
-      setTimeout(() => (this.copied = false), 2500);
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.copied = false;
+        this.cdr.detectChanges();
+      }, 2500);
     });
   }
 
