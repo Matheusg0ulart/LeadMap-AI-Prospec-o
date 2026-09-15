@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Business } from '../../core/models/business.model';
@@ -26,7 +26,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
           <!-- Ações Superiores -->
           <div class="header-controls">
             <!-- Alternador de Dispositivo -->
-            <div class="device-switcher">
+            <div class="device-switcher" *ngIf="isReady">
               <button
                 type="button"
                 class="device-btn"
@@ -78,7 +78,84 @@ import { SiteDemo } from '../../core/models/site-demo.model';
 
         <!-- Preview Body Container -->
         <div class="modal-body" [class.mobile-frame-wrapper]="viewMode === 'mobile'">
-          <div class="iframe-container" [class.mobile-device]="viewMode === 'mobile'">
+          <!-- Barra e Painel de Carregamento com IA -->
+          <div class="generation-loader" *ngIf="!isReady">
+            <div class="loader-card">
+              <div class="loader-header-tag">
+                <span class="pulse-ring"></span>
+                <span>GERADOR DE SITES IA • LEADMAP</span>
+              </div>
+
+              <h4 class="loader-title">Criando Demonstração do Site</h4>
+              <p class="loader-subtitle">Analisando dados comerciais de <strong>{{ business.name }}</strong></p>
+
+              <!-- Barra de Progresso Principal -->
+              <div class="progress-box">
+                <div class="progress-info-row">
+                  <span class="progress-step-label">{{ currentStepText }}</span>
+                  <span class="progress-percentage">{{ loadingProgress }}%</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill" [style.width.%]="loadingProgress">
+                    <div class="progress-shimmer"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Etapas Dinâmicas com Checkmarks -->
+              <div class="steps-checklist">
+                <div class="step-item" [class.done]="loadingProgress >= 25" [class.active]="loadingProgress < 25">
+                  <div class="step-icon-badge">
+                    <span *ngIf="loadingProgress >= 25">✓</span>
+                    <span *ngIf="loadingProgress < 25" class="spin-icon">⏳</span>
+                  </div>
+                  <div class="step-desc">
+                    <span class="step-title">Coleta de Perfil & Avaliações</span>
+                    <span class="step-sub">Extraindo nota e reputação do Google Maps</span>
+                  </div>
+                </div>
+
+                <div class="step-item" [class.done]="loadingProgress >= 55" [class.active]="loadingProgress >= 25 && loadingProgress < 55">
+                  <div class="step-icon-badge">
+                    <span *ngIf="loadingProgress >= 55">✓</span>
+                    <span *ngIf="loadingProgress >= 25 && loadingProgress < 55" class="spin-icon">⏳</span>
+                    <span *ngIf="loadingProgress < 25">⚪</span>
+                  </div>
+                  <div class="step-desc">
+                    <span class="step-title">Identidade Visual & Paleta</span>
+                    <span class="step-sub">Adaptando cores e layout para {{ business.category }}</span>
+                  </div>
+                </div>
+
+                <div class="step-item" [class.done]="loadingProgress >= 80" [class.active]="loadingProgress >= 55 && loadingProgress < 80">
+                  <div class="step-icon-badge">
+                    <span *ngIf="loadingProgress >= 80">✓</span>
+                    <span *ngIf="loadingProgress >= 55 && loadingProgress < 80" class="spin-icon">⏳</span>
+                    <span *ngIf="loadingProgress < 55">⚪</span>
+                  </div>
+                  <div class="step-desc">
+                    <span class="step-title">Catálogo de Serviços & Argumentos</span>
+                    <span class="step-sub">Redigindo chamadas e gatilhos de conversão</span>
+                  </div>
+                </div>
+
+                <div class="step-item" [class.done]="loadingProgress >= 100" [class.active]="loadingProgress >= 80 && loadingProgress < 100">
+                  <div class="step-icon-badge">
+                    <span *ngIf="loadingProgress >= 100">✓</span>
+                    <span *ngIf="loadingProgress >= 80 && loadingProgress < 100" class="spin-icon">⏳</span>
+                    <span *ngIf="loadingProgress < 80">⚪</span>
+                  </div>
+                  <div class="step-desc">
+                    <span class="step-title">Verificação de Domínio & Finalização</span>
+                    <span class="step-sub">Checando Registro.br e renderizando prévia</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Container do Iframe (revelado quando pronto) -->
+          <div class="iframe-container" [class.mobile-device]="viewMode === 'mobile'" [class.revealed]="isReady">
             <div class="device-speaker" *ngIf="viewMode === 'mobile'"></div>
             <iframe
               *ngIf="safeIframeUrl"
@@ -311,11 +388,206 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       padding: 20px;
       background: #cbd5e1;
     }
+
+    /* === Painel de Carregamento & Barra de Progresso === */
+    .generation-loader {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      padding: 20px;
+    }
+    .loader-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 540px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      animation: scaleIn 0.25s ease-out;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .loader-header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .pulse-ring {
+      width: 8px;
+      height: 8px;
+      background: #2563eb;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(37,99,235, 0.4);
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37,99,235, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(37,99,235, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37,99,235, 0); }
+    }
+    .loader-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 6px;
+    }
+    .loader-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0 0 24px;
+    }
+
+    /* Barra de Progresso */
+    .progress-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .progress-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .progress-step-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: left;
+    }
+    .progress-percentage {
+      font-size: 16px;
+      font-weight: 900;
+      color: #2563eb;
+      font-family: monospace;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
+      border-radius: 9999px;
+      transition: width 0.15s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-shimmer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Checklist de Etapas */
+    .steps-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .step-item.active {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .step-item.done {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .step-icon-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      background: #e2e8f0;
+      color: #64748b;
+      shrink: 0;
+    }
+    .step-item.done .step-icon-badge {
+      background: #22c55e;
+      color: #ffffff;
+    }
+    .step-item.active .step-icon-badge {
+      background: #3b82f6;
+      color: #ffffff;
+    }
+    .step-desc {
+      display: flex;
+      flex-direction: column;
+    }
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .step-sub {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .spin-icon {
+      animation: spin 1s infinite linear;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Iframe & Device Frames */
     .iframe-container {
       width: 100%;
       height: 100%;
       background: #ffffff;
-      transition: all 0.25s ease-in-out;
+      transition: opacity 0.3s ease-in-out, transform 0.25s ease-in-out;
+      opacity: 0;
+    }
+    .iframe-container.revealed {
+      opacity: 1;
     }
     .iframe-container.mobile-device {
       width: 390px;
@@ -346,7 +618,7 @@ import { SiteDemo } from '../../core/models/site-demo.model';
     }
   `]
 })
-export class DemoPreviewModalComponent implements OnInit {
+export class DemoPreviewModalComponent implements OnInit, OnDestroy {
   @Input() business!: Business;
   @Output() close = new EventEmitter<void>();
 
@@ -355,6 +627,13 @@ export class DemoPreviewModalComponent implements OnInit {
   demoUrl = '';
   safeIframeUrl?: SafeResourceUrl;
   demoData?: SiteDemo;
+
+  // Barra de Carregamento & Progresso
+  loadingProgress = 15;
+  currentStepText = 'Analisando perfil comercial e avaliações do Google...';
+  isReady = false;
+  private dataLoaded = false;
+  private progressInterval: any;
 
   constructor(
     private siteDemoService: SiteDemoService,
@@ -370,20 +649,63 @@ export class DemoPreviewModalComponent implements OnInit {
     }
     this.safeIframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.demoUrl);
 
+    this.startProgress();
+
     // Carrega dados completos do demo para uso no botão do WhatsApp
     if (this.business.id) {
       this.siteDemoService.getDemo(this.business.id).subscribe({
         next: (demo) => {
           this.demoData = demo;
+          this.dataLoaded = true;
+        },
+        error: () => {
+          this.dataLoaded = true;
         }
       });
     } else {
       this.siteDemoService.generatePreview(this.business).subscribe({
         next: (demo) => {
           this.demoData = demo;
+          this.dataLoaded = true;
+        },
+        error: () => {
+          this.dataLoaded = true;
         }
       });
     }
+  }
+
+  ngOnDestroy() {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+    }
+  }
+
+  startProgress() {
+    this.loadingProgress = 15;
+    this.isReady = false;
+    this.dataLoaded = false;
+    this.currentStepText = 'Analisando dados do estabelecimento no Google Maps...';
+
+    this.progressInterval = setInterval(() => {
+      if (this.loadingProgress < 40) {
+        this.loadingProgress += 5;
+        this.currentStepText = `Definindo identidade visual e tema para ${this.business.category || 'o comércio'}...`;
+      } else if (this.loadingProgress < 75) {
+        this.loadingProgress += 5;
+        this.currentStepText = 'Gerando catálogo de serviços e argumentos persuasivos...';
+      } else if (this.loadingProgress < 92) {
+        this.loadingProgress += 4;
+        this.currentStepText = 'Verificando disponibilidade do domínio no Registro.br...';
+      } else if (this.dataLoaded && this.loadingProgress < 100) {
+        this.loadingProgress = 100;
+        this.currentStepText = '✨ Demonstração finalizada!';
+        clearInterval(this.progressInterval);
+        setTimeout(() => {
+          this.isReady = true;
+        }, 350);
+      }
+    }, 70);
   }
 
   copyLink() {

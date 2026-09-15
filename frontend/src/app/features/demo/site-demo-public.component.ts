@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SiteDemoService } from '../../core/services/site-demo.service';
@@ -211,10 +211,49 @@ import { SiteDemo } from '../../core/models/site-demo.model';
     </div>
 
     <ng-template #loadingState>
-      <div class="loading-container">
-        <div class="spinner"></div>
-        <p class="loading-title">Gerando demonstração do site com IA...</p>
-        <p class="loading-sub">Analisando categoria, avaliações do Google e montando a estrutura visual.</p>
+      <div class="public-loading-screen">
+        <div class="public-loader-card">
+          <div class="public-badge">
+            <span class="public-pulse"></span>
+            <span>LEADMAP AI • GERADOR DE SITES</span>
+          </div>
+
+          <h2 class="public-title">Sintetizando Demonstração com IA</h2>
+          <p class="public-desc">Montando a estrutura e os argumentos de conversão do comércio.</p>
+
+          <!-- Barra de Progresso com Porcentagem -->
+          <div class="public-progress-box">
+            <div class="public-info-row">
+              <span class="public-step-text">{{ currentStepText }}</span>
+              <span class="public-percentage">{{ loadingProgress }}%</span>
+            </div>
+            <div class="public-track">
+              <div class="public-fill" [style.width.%]="loadingProgress">
+                <div class="public-shimmer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Etapas Dinâmicas -->
+          <div class="public-steps">
+            <div class="p-step" [class.done]="loadingProgress >= 25" [class.active]="loadingProgress < 25">
+              <span class="p-icon">{{ loadingProgress >= 25 ? '✓' : '🔄' }}</span>
+              <span>Análise de reputação no Google Maps</span>
+            </div>
+            <div class="p-step" [class.done]="loadingProgress >= 55" [class.active]="loadingProgress >= 25 && loadingProgress < 55">
+              <span class="p-icon">{{ loadingProgress >= 55 ? '✓' : (loadingProgress >= 25 ? '🔄' : '⚪') }}</span>
+              <span>Definição de paleta e identidade visual</span>
+            </div>
+            <div class="p-step" [class.done]="loadingProgress >= 80" [class.active]="loadingProgress >= 55 && loadingProgress < 80">
+              <span class="p-icon">{{ loadingProgress >= 80 ? '✓' : (loadingProgress >= 55 ? '🔄' : '⚪') }}</span>
+              <span>Catálogo de serviços e argumentos de venda</span>
+            </div>
+            <div class="p-step" [class.done]="loadingProgress >= 100" [class.active]="loadingProgress >= 80 && loadingProgress < 100">
+              <span class="p-icon">{{ loadingProgress >= 100 ? '✓' : (loadingProgress >= 80 ? '🔄' : '⚪') }}</span>
+              <span>Checagem no Registro.br e publicação</span>
+            </div>
+          </div>
+        </div>
       </div>
     </ng-template>
   `,
@@ -803,38 +842,134 @@ import { SiteDemo } from '../../core/models/site-demo.model';
       height: 32px;
     }
 
-    /* Loading State */
-    .loading-container {
-      min-height: 80vh;
+    /* Loading State com Barra de Progresso */
+    .public-loading-screen {
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 24px;
+    }
+    .public-loader-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 520px;
+      width: 100%;
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
       text-align: center;
     }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #2563eb;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .loading-title {
-      font-size: 20px;
+    .public-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      font-size: 11px;
       font-weight: 800;
-      color: #0f172a;
-      margin: 0 0 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
     }
-    .loading-sub {
+    .public-pulse {
+      width: 8px;
+      height: 8px;
+      background: #2563eb;
+      border-radius: 50%;
+      box-shadow: 0 0 0 rgba(37,99,235,0.4);
+      animation: pulse 1.2s infinite;
+    }
+    .public-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 0 0 8px;
+    }
+    .public-desc {
       font-size: 14px;
       color: #64748b;
-      margin: 0;
+      margin: 0 0 24px;
+    }
+    .public-progress-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .public-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .public-step-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: left;
+    }
+    .public-percentage {
+      font-size: 16px;
+      font-weight: 900;
+      color: #2563eb;
+      font-family: monospace;
+    }
+    .public-track {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .public-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
+      border-radius: 9999px;
+      transition: width 0.15s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .public-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+    .public-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+    .p-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #64748b;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .p-step.done {
+      color: #15803d;
+      background: #f0fdf4;
+      font-weight: 600;
+    }
+    .p-step.active {
+      color: #1d4ed8;
+      background: #eff6ff;
+      font-weight: 600;
+    }
+    .p-icon {
+      font-size: 12px;
+      font-weight: 800;
     }
 
     /* Ajustes Mobile */
@@ -851,9 +986,16 @@ import { SiteDemo } from '../../core/models/site-demo.model';
     }
   `]
 })
-export class SiteDemoPublicComponent implements OnInit {
+export class SiteDemoPublicComponent implements OnInit, OnDestroy {
   demo?: SiteDemo;
   currentYear = new Date().getFullYear();
+
+  // Progress Bar
+  loadingProgress = 15;
+  currentStepText = 'Analisando perfil comercial e avaliações do Google...';
+  private progressInterval: any;
+  private dataLoaded = false;
+  private pendingDemoData?: SiteDemo;
 
   constructor(
     private route: ActivatedRoute,
@@ -861,17 +1003,17 @@ export class SiteDemoPublicComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.startProgress();
+
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) {
         this.loadDemoById(+id);
       } else {
-        // Tenta ler de query params se disponível
         this.route.queryParams.subscribe(qp => {
           if (qp['name']) {
             this.generateFromQuery(qp['name'], qp['category'], qp['address']);
           } else {
-            // Default demo para teste
             this.loadDemoById(144);
           }
         });
@@ -879,13 +1021,47 @@ export class SiteDemoPublicComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.progressInterval) {
+      clearInterval(this.progressInterval);
+    }
+  }
+
+  startProgress() {
+    this.loadingProgress = 15;
+    this.dataLoaded = false;
+    this.currentStepText = 'Analisando perfil no Google Maps...';
+
+    this.progressInterval = setInterval(() => {
+      if (this.loadingProgress < 40) {
+        this.loadingProgress += 6;
+        this.currentStepText = 'Definindo identidade visual e paleta de cores...';
+      } else if (this.loadingProgress < 75) {
+        this.loadingProgress += 5;
+        this.currentStepText = 'Gerando catálogo de serviços e argumentos de venda...';
+      } else if (this.loadingProgress < 92) {
+        this.loadingProgress += 4;
+        this.currentStepText = 'Verificando domínio oficial no Registro.br...';
+      } else if (this.dataLoaded && this.loadingProgress < 100) {
+        this.loadingProgress = 100;
+        this.currentStepText = 'Demonstração pronta!';
+        clearInterval(this.progressInterval);
+        setTimeout(() => {
+          this.demo = this.pendingDemoData;
+        }, 300);
+      }
+    }, 60);
+  }
+
   loadDemoById(id: number) {
     this.siteDemoService.getDemo(id).subscribe({
       next: (res) => {
-        this.demo = res;
+        this.pendingDemoData = res;
+        this.dataLoaded = true;
       },
       error: (err) => {
         console.error('Erro ao carregar demonstração:', err);
+        this.dataLoaded = true;
       }
     });
   }
@@ -899,7 +1075,11 @@ export class SiteDemoPublicComponent implements OnInit {
       reviewCount: 35
     }).subscribe({
       next: (res) => {
-        this.demo = res;
+        this.pendingDemoData = res;
+        this.dataLoaded = true;
+      },
+      error: () => {
+        this.dataLoaded = true;
       }
     });
   }
