@@ -251,3 +251,54 @@ body {
 .saas-card:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
+
+/* === WhatsApp button (used globally) === */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #25d366;
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.btn-whatsapp:hover {
+  background: #20ba5a;
+  transform: translateY(-1px);
+}
+.btn-whatsapp-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.btn-whatsapp-md {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+/* === Demo IA button === */
+.btn-demo-ia {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  padding: 5px 10px;
+  font-size: 12px;
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.35);
+}
+.btn-demo-ia:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}

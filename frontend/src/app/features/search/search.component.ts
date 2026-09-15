@@ -7,11 +7,12 @@ import { LeadService } from '../../core/services/lead.service';
 import { Business } from '../../core/models/business.model';
 import { ScoreBadgeComponent } from '../../shared/components/score-badge.component';
 import { BusinessModalComponent } from '../../shared/components/business-modal.component';
+import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-modal.component';
 
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, ScoreBadgeComponent, BusinessModalComponent],
+  imports: [CommonModule, FormsModule, ScoreBadgeComponent, BusinessModalComponent, DemoPreviewModalComponent],
   template: `
     <div class="search-page-container">
       <!-- Search Form Box -->
@@ -202,12 +203,20 @@ import { BusinessModalComponent } from '../../shared/components/business-modal.c
 
               <!-- Actions -->
               <div class="card-actions-bar">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <button
                     type="button"
                     class="btn btn-outline btn-sm"
                     (click)="openDetails(b, $event)">
                     Ver detalhes
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-demo-ia btn-sm"
+                    (click)="openDemoPreview(b, $event)"
+                    title="Visualizar demonstração de site gerada pela IA">
+                    <span>✨ Site IA</span>
                   </button>
 
                   <a
@@ -259,6 +268,13 @@ import { BusinessModalComponent } from '../../shared/components/business-modal.c
         (onClose)="modalBusiness = null"
         (onLeadUpdated)="handleLeadUpdated($event)">
       </app-business-modal>
+
+      <!-- Demo Preview Modal (Site IA) -->
+      <app-demo-preview-modal
+        *ngIf="demoPreviewBusiness"
+        [business]="demoPreviewBusiness"
+        (close)="demoPreviewBusiness = null">
+      </app-demo-preview-modal>
     </div>
   `,
   styles: [`
@@ -462,6 +478,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   selectedBusiness: Business | null = null;
   modalBusiness: Business | null = null;
+  demoPreviewBusiness: Business | null = null;
 
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
@@ -618,6 +635,11 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.allBusinesses[idx] = updated;
       this.applyFilter();
     }
+  }
+
+  openDemoPreview(business: Business, event?: Event) {
+    if (event) { event.stopPropagation(); }
+    this.demoPreviewBusiness = business;
   }
 
   private initOrUpdateMap() {

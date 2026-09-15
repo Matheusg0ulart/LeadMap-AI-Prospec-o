@@ -204,6 +204,13 @@ import { ScoreBadgeComponent } from './score-badge.component';
         <!-- Footer -->
         <div class="modal-footer">
           <button class="btn btn-outline" (click)="close()">Fechar</button>
+          <button
+            class="btn-demo-ia"
+            style="padding: 7px 16px; font-size: 13px;"
+            (click)="openSiteDemo()"
+            title="Ver demonstração do site gerada pela IA">
+            ✨ Ver Site IA (Demo)
+          </button>
         </div>
       </div>
     </div>
@@ -359,6 +366,8 @@ import { ScoreBadgeComponent } from './score-badge.component';
       border-top: 1px solid #e2e8f0;
       display: flex;
       justify-content: flex-end;
+      gap: 10px;
+      align-items: center;
     }
     .flex { display: flex; }
     .items-center { align-items: center; }
@@ -450,5 +459,13 @@ export class BusinessModalComponent {
     navigator.clipboard.writeText(this.aiAnalysis.suggestedApproach);
     this.copied = true;
     setTimeout(() => this.copied = false, 2500);
+  }
+
+  openSiteDemo() {
+    const origin = window.location.origin;
+    const url = this.business.id
+      ? `${origin}/demo/${this.business.id}`
+      : `${origin}/demo?name=${encodeURIComponent(this.business.name)}&category=${encodeURIComponent(this.business.category || '')}`;
+    window.open(url, '_blank');
   }
 }

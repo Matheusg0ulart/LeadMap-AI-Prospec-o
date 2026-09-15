@@ -5,8 +5,11 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { LeadsListComponent } from './features/leads/leads-list.component';
 import { LeadsKanbanComponent } from './features/leads/leads-kanban.component';
 import { SettingsComponent } from './features/settings/settings.component';
+import { SiteDemoPublicComponent } from './features/demo/site-demo-public.component';
 
 export const routes: Routes = [
+  { path: 'demo/:id', component: SiteDemoPublicComponent },
+  { path: 'demo', component: SiteDemoPublicComponent },
   {
     path: '',
     component: MainLayoutComponent,
