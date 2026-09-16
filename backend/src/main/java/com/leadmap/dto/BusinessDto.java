@@ -19,6 +19,14 @@ public class BusinessDto {
     private Integer reviewCount;
     private String instagram;
     private String source;
+    private String cnpj;
+    private String legalName;
+    private String ownerName;
+    private String partnerDetails;
+    private String capitalSocial;
+    private String cnae;
+    private String officialPhone;
+    private String officialEmail;
     private WebsiteStatus websiteStatus;
     private String websiteStatusLabel;
     private Integer leadScore;
@@ -138,6 +146,70 @@ public class BusinessDto {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getCnpj() {
+        return cnpj;
+    }
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
+    }
+
+    public String getLegalName() {
+        return legalName;
+    }
+
+    public void setLegalName(String legalName) {
+        this.legalName = legalName;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public String getPartnerDetails() {
+        return partnerDetails;
+    }
+
+    public void setPartnerDetails(String partnerDetails) {
+        this.partnerDetails = partnerDetails;
+    }
+
+    public String getCapitalSocial() {
+        return capitalSocial;
+    }
+
+    public void setCapitalSocial(String capitalSocial) {
+        this.capitalSocial = capitalSocial;
+    }
+
+    public String getCnae() {
+        return cnae;
+    }
+
+    public void setCnae(String cnae) {
+        this.cnae = cnae;
+    }
+
+    public String getOfficialPhone() {
+        return officialPhone;
+    }
+
+    public void setOfficialPhone(String officialPhone) {
+        this.officialPhone = officialPhone;
+    }
+
+    public String getOfficialEmail() {
+        return officialEmail;
+    }
+
+    public void setOfficialEmail(String officialEmail) {
+        this.officialEmail = officialEmail;
     }
 
     public WebsiteStatus getWebsiteStatus() {

@@ -15,6 +15,14 @@ export interface Business {
   reviewCount?: number;
   instagram?: string;
   source: string;
+  cnpj?: string;
+  legalName?: string;
+  ownerName?: string;
+  partnerDetails?: string;
+  capitalSocial?: string;
+  cnae?: string;
+  officialPhone?: string;
+  officialEmail?: string;
   websiteStatus: WebsiteStatus;
   websiteStatusLabel: string;
   leadScore: number;

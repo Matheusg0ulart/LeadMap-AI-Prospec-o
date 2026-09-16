@@ -3,7 +3,9 @@ package com.leadmap.mapper;
 import com.leadmap.dto.BusinessDto;
 import com.leadmap.entity.Business;
 import com.leadmap.entity.Lead;
+import com.leadmap.service.DomainCheckService;
 import com.leadmap.service.ScoringService;
+import com.leadmap.service.WhatsAppPitchService;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -12,12 +14,12 @@ import java.util.Optional;
 public class BusinessMapper {
 
     private final ScoringService scoringService;
-    private final com.leadmap.service.DomainCheckService domainCheckService;
-    private final com.leadmap.service.WhatsAppPitchService whatsAppPitchService;
+    private final DomainCheckService domainCheckService;
+    private final WhatsAppPitchService whatsAppPitchService;
 
     public BusinessMapper(ScoringService scoringService,
-                          com.leadmap.service.DomainCheckService domainCheckService,
-                          com.leadmap.service.WhatsAppPitchService whatsAppPitchService) {
+                          DomainCheckService domainCheckService,
+                          WhatsAppPitchService whatsAppPitchService) {
         this.scoringService = scoringService;
         this.domainCheckService = domainCheckService;
         this.whatsAppPitchService = whatsAppPitchService;
@@ -44,6 +46,17 @@ public class BusinessMapper {
         dto.setSource(entity.getSource());
         dto.setWebsiteStatus(entity.getWebsiteStatus());
         dto.setLeadScore(entity.getLeadScore());
+
+        // Mapeamento dos novos campos de CNPJ, Sócios e Dono
+        dto.setCnpj(entity.getCnpj());
+        dto.setLegalName(entity.getLegalName());
+        dto.setOwnerName(entity.getOwnerName());
+        dto.setPartnerDetails(entity.getPartnerDetails());
+        dto.setCapitalSocial(entity.getCapitalSocial());
+        dto.setCnae(entity.getCnae());
+        dto.setOfficialPhone(entity.getOfficialPhone());
+        dto.setOfficialEmail(entity.getOfficialEmail());
+
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
 
@@ -54,7 +67,6 @@ public class BusinessMapper {
         String suggestedDomain = domainCheckService.suggestDomain(entity.getName());
         dto.setSuggestedDomain(suggestedDomain);
 
-        // Se o estabelecimento não tem site, verifica se o domínio .com.br está disponível
         Boolean domainAvailable = null;
         if (entity.getWebsite() == null || entity.getWebsite().isBlank()) {
             domainAvailable = domainCheckService.checkAvailability(suggestedDomain);
@@ -63,14 +75,22 @@ public class BusinessMapper {
         }
         dto.setDomainAvailable(domainAvailable);
 
-        // Geração do pitch e link de WhatsApp direto
+        // Geração do pitch e link de WhatsApp hiper-personalizado (usando o nome do dono se disponível)
         String pitch = whatsAppPitchService.generatePitch(
                 entity.getName(), entity.getCategory(), entity.getRating(),
                 entity.getReviewCount(), entity.getAddress(), suggestedDomain, domainAvailable
         );
+
+        if (entity.getOwnerName() != null && !entity.getOwnerName().isBlank()) {
+            pitch = "Olá " + entity.getOwnerName() + "! Tudo bem?\n\n" + pitch;
+        }
+
         dto.setWhatsappPitch(pitch);
 
-        String waUrl = whatsAppPitchService.buildWhatsAppUrl(entity.getPhone(), pitch);
+        String waUrl = whatsAppPitchService.buildWhatsAppUrl(
+                entity.getPhone() != null ? entity.getPhone() : entity.getOfficialPhone(),
+                pitch
+        );
         dto.setWhatsappUrl(waUrl);
 
         if (leadOpt != null && leadOpt.isPresent()) {

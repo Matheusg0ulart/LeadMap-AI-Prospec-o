@@ -49,4 +49,14 @@ public class BusinessService {
         Optional<Lead> leadOpt = leadRepository.findByBusinessId(business.getId());
         return businessMapper.toDto(business, leadOpt);
     }
+
+    @Transactional
+    public BusinessDto updatePhone(Long id, String phone) {
+        Business business = businessRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Estabelecimento não encontrado com ID: " + id));
+        business.setPhone(phone);
+        Business saved = businessRepository.save(business);
+        Optional<Lead> leadOpt = leadRepository.findByBusinessId(saved.getId());
+        return businessMapper.toDto(saved, leadOpt);
+    }
 }

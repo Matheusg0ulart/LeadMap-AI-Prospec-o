@@ -127,18 +127,20 @@ public class SiteDemoService {
 
         // Generate sales pitch including the demo link
         StringBuilder pitch = new StringBuilder();
-        pitch.append("Olá! Tudo bem? Falo com o responsável pela ").append(name).append("? 👋\n\n");
-        pitch.append("Vi o perfil de vocês no Google Maps com excelente reputação: nota ").append(String.format("%.1f", stars))
-             .append(" e ").append(reviewTotal).append(" avaliações ").append(neighborhood).append("!\n\n");
-
-        pitch.append("Notei que vocês ainda não tinham um site próprio oficial de alta conversão, então tomei a liberdade de criar uma demonstração exclusiva de como ficaria o portal online da ").append(name).append(":\n");
+        pitch.append("Olá! Eu falo com o responsável da ").append(name).append("?\n\n");
+        pitch.append("Olá! Tudo bem? Meu nome é *Matheus Goulart*, sou estudante de *Engenharia de Software* e trabalho com desenvolvimento de sites.\n\n");
+        pitch.append("Encontrei a empresa de vocês pelo Google e percebi que vocês ainda não possuem um *site próprio*. Por isso, gostaria de apresentar meu trabalho e oferecer uma solução que pode ajudar a empresa a ter uma presença mais profissional na internet.\n\n");
+        pitch.append("Hoje, muitos clientes pesquisam uma empresa no Google antes de entrar em contato ou realizar uma compra. Um site próprio pode ajudar vocês a *serem encontrados por mais pessoas, apresentar os serviços/produtos, mostrar informações importantes e facilitar o contato com novos clientes*.\n\n");
+        pitch.append("Eu posso desenvolver um site moderno, responsivo e personalizado para a empresa, pensado de acordo com o negócio e com os objetivos de vocês.\n\n");
+        pitch.append("Inclusive, preparei uma demonstração exclusiva de como ficaria o site da ").append(name).append(":\n");
         pitch.append("👉 ").append(demoUrl).append("\n\n");
 
         if (Boolean.TRUE.equals(domainAvailable) && suggestedDomain != null) {
-            pitch.append("Além disso, verifiquei no Registro.br e o domínio oficial [").append(suggestedDomain).append("] está LIVRE para registro agora mesmo!\n\n");
+            pitch.append("Além disso, verifiquei no Registro.br e o domínio oficial [").append(suggestedDomain).append("] está *DISPONÍVEL* para registro agora mesmo!\n\n");
         }
 
-        pitch.append("O que achou da prévia? Teria 2 minutos para conversarmos sobre como colocar esse site no ar para atrair mais clientes?");
+        pitch.append("Se tiverem alguns minutos, é só responder esta mensagem e podemos marcar uma breve reunião para eu apresentar a ideia e mostrar como o site poderia funcionar para vocês.\n\n");
+        pitch.append("Fico à disposição! 🚀");
         demo.setWhatsappPitchWithDemo(pitch.toString());
 
         return demo;

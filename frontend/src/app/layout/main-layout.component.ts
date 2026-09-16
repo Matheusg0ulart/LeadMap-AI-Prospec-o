@@ -30,9 +30,10 @@ import { SidebarComponent } from './sidebar.component';
     }
     .layout-content {
       flex: 1;
-      padding: 1.5rem 2rem;
-      background-color: #f8fafc;
+      padding: 1.75rem 2rem;
+      background-color: var(--surface-page, #f6f8fc);
       overflow-x: hidden;
+      min-width: 0;
     }
   `]
 })

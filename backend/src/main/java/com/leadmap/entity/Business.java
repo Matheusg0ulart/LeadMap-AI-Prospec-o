@@ -39,6 +39,29 @@ public class Business {
 
     private String source;
 
+    // Campos de Enriquecimento Fiscal e Sócios (BrasilAPI / Receita Federal)
+    private String cnpj;
+
+    @Column(name = "legal_name")
+    private String legalName;
+
+    @Column(name = "owner_name")
+    private String ownerName;
+
+    @Column(name = "partner_details", length = 1000)
+    private String partnerDetails;
+
+    @Column(name = "capital_social")
+    private String capitalSocial;
+
+    private String cnae;
+
+    @Column(name = "official_phone")
+    private String officialPhone;
+
+    @Column(name = "official_email")
+    private String officialEmail;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "website_status", nullable = false)
     private WebsiteStatus websiteStatus;
@@ -174,6 +197,70 @@ public class Business {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getCnpj() {
+        return cnpj;
+    }
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj;
+    }
+
+    public String getLegalName() {
+        return legalName;
+    }
+
+    public void setLegalName(String legalName) {
+        this.legalName = legalName;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public String getPartnerDetails() {
+        return partnerDetails;
+    }
+
+    public void setPartnerDetails(String partnerDetails) {
+        this.partnerDetails = partnerDetails;
+    }
+
+    public String getCapitalSocial() {
+        return capitalSocial;
+    }
+
+    public void setCapitalSocial(String capitalSocial) {
+        this.capitalSocial = capitalSocial;
+    }
+
+    public String getCnae() {
+        return cnae;
+    }
+
+    public void setCnae(String cnae) {
+        this.cnae = cnae;
+    }
+
+    public String getOfficialPhone() {
+        return officialPhone;
+    }
+
+    public void setOfficialPhone(String officialPhone) {
+        this.officialPhone = officialPhone;
+    }
+
+    public String getOfficialEmail() {
+        return officialEmail;
+    }
+
+    public void setOfficialEmail(String officialEmail) {
+        this.officialEmail = officialEmail;
     }
 
     public WebsiteStatus getWebsiteStatus() {

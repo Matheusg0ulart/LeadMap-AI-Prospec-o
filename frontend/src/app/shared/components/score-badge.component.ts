@@ -6,41 +6,41 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="inline-flex items-center gap-2">
-      <div class="score-pill" [ngClass]="getPillClass()">
-        <span class="font-bold">{{ score }}</span><span class="text-[10px] opacity-75">/100</span>
-      </div>
-      <div *ngIf="showLabel" class="text-xs font-semibold uppercase tracking-wider" [ngClass]="getTextClass()">
-        {{ getClassification() }}
-      </div>
+    <div class="score-badge-wrapper" [ngClass]="getPillClass()">
+      <span class="score-value">{{ score }}</span><span class="score-unit">/100</span>
     </div>
   `,
   styles: [`
-    .score-pill {
+    .score-badge-wrapper {
       display: inline-flex;
       align-items: baseline;
-      padding: 2px 8px;
+      gap: 1px;
+      padding: 3px 9px;
       border-radius: 9999px;
       font-size: 0.825rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      border: 1.5px solid transparent;
+      flex-shrink: 0;
     }
+    .score-value { font-weight: 800; }
+    .score-unit { font-size: 0.65rem; opacity: 0.65; margin-left: 1px; font-weight: 600; }
+
     .pill-high {
-      background-color: #dcfce7;
+      background: linear-gradient(135deg, #dcfce7, #d1fae5);
       color: #15803d;
-      border: 1px solid #86efac;
+      border-color: #86efac;
     }
     .pill-medium {
-      background-color: #fef3c7;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
       color: #b45309;
-      border: 1px solid #fcd34d;
+      border-color: #fcd34d;
     }
     .pill-low {
-      background-color: #f1f5f9;
-      color: #475569;
-      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #64748b;
+      border-color: #e2e8f0;
     }
-    .text-high { color: #16a34a; }
-    .text-medium { color: #d97706; }
-    .text-low { color: #64748b; }
   `]
 })
 export class ScoreBadgeComponent {

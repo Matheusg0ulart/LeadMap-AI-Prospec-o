@@ -37,4 +37,8 @@ export class BusinessService {
   analyze(id: number): Observable<AiAnalysis> {
     return this.http.post<AiAnalysis>(`${this.api.baseUrl}/businesses/${id}/analyze`, {});
   }
+
+  updatePhone(id: number, phone: string): Observable<Business> {
+    return this.http.put<Business>(`${this.api.baseUrl}/businesses/${id}/phone`, { phone });
+  }
 }

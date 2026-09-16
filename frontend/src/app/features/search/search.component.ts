@@ -14,26 +14,52 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
   standalone: true,
   imports: [CommonModule, FormsModule, ScoreBadgeComponent, BusinessModalComponent, DemoPreviewModalComponent],
   template: `
-    <div class="search-page-container">
+    <div class="search-page-container animate-fade-in">
       <!-- Search Form Box -->
-      <section class="saas-card p-6 mb-6">
-        <div class="search-header mb-4">
-          <h1 class="text-xl font-bold text-slate-900">Encontre oportunidades de prospecção</h1>
-          <p class="text-sm text-slate-500">Descubra estabelecimentos comerciais com forte presença, mas sem site próprio identificado.</p>
+      <section class="search-form-card">
+        <div class="search-header">
+          <div class="search-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div>
+            <h1 class="search-title">Encontre oportunidades de prospecção</h1>
+            <p class="search-subtitle">Descubra estabelecimentos com forte presença mas sem site próprio — sua próxima venda está aqui.</p>
+          </div>
         </div>
 
         <form (ngSubmit)="onSearch()" class="search-form-grid">
-          <!-- Localização -->
-          <div class="form-group">
-            <label class="form-label">📍 Localização / Bairro</label>
-            <input
-              type="text"
-              [(ngModel)]="location"
-              name="location"
-              required
-              class="form-input"
-              placeholder="Ex.: Tatuapé, São Paulo - SP"
-            />
+          <!-- Localização / Bairro com Autocomplete -->
+          <div class="form-group relative">
+            <label class="form-label">📍 Localização / Bairro / Cidade</label>
+            <div class="autocomplete-input-wrapper">
+              <input
+                type="text"
+                [(ngModel)]="location"
+                (input)="onLocationInput()"
+                (focus)="onLocationFocus()"
+                (blur)="onLocationBlur()"
+                name="location"
+                required
+                class="form-input"
+                placeholder="Ex.: Belo Horizonte - MG, Tatuapé..."
+                autocomplete="off"
+              />
+
+              <!-- Autocomplete Dropdown -->
+              <div *ngIf="showLocationDropdown && locationSuggestions.length > 0" class="location-autocomplete-dropdown">
+                <div
+                  *ngFor="let item of locationSuggestions"
+                  class="autocomplete-item"
+                  (mousedown)="selectLocation(item)"
+                >
+                  <span class="autocomplete-icon">📍</span>
+                  <div class="autocomplete-text">
+                    <div class="autocomplete-title">{{ item.mainText }}</div>
+                    <div *ngIf="item.subText" class="autocomplete-subtext">{{ item.subText }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Categoria -->
@@ -73,12 +99,44 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
           <!-- Submit Button -->
           <div class="form-group flex-end">
             <button type="submit" class="btn btn-primary w-full search-btn" [disabled]="loading">
-              <span *ngIf="!loading">🔍 Buscar Empresas</span>
-              <span *ngIf="loading">Buscando na região...</span>
+              <span *ngIf="!loading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                Buscar Empresas
+              </span>
+              <span *ngIf="loading" style="display:flex;align-items:center;gap:8px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                Buscando...
+              </span>
             </button>
           </div>
         </form>
+
+        <!-- Loading Progress Bar -->
+        <div *ngIf="loading" class="search-loading-bar">
+          <div class="search-loading-text">
+            <span class="search-loading-dot"></span>
+            Consultando OpenStreetMap, Photon e Nominatim em paralelo...
+          </div>
+          <div class="search-loading-track"><div class="search-loading-fill"></div></div>
+        </div>
       </section>
+
+      <!-- Empty Welcome State (before first search) -->
+      <div *ngIf="!searched && !loading" class="welcome-state">
+        <div class="welcome-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            <circle cx="12" cy="9" r="2.5"/>
+          </svg>
+        </div>
+        <h3 class="welcome-title">Pronto para prospectar</h3>
+        <p class="welcome-text">Selecione uma localização e categoria acima e clique em <strong>Buscar Empresas</strong> para encontrar estabelecimentos com alto potencial de venda.</p>
+        <div class="welcome-tips">
+          <div class="tip-item">🎯 Filtre por estabelecimentos sem site</div>
+          <div class="tip-item">🗺️ Dados do OpenStreetMap (gratuito)</div>
+          <div class="tip-item">⚡ Resultados em menos de 5 segundos</div>
+        </div>
+      </div>
 
       <!-- Results Area -->
       <section *ngIf="searched" class="results-container">
@@ -123,6 +181,14 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
                 (click)="setFilter('HAS_WEBSITE')">
                 Com site
               </button>
+
+              <a
+                [href]="exportCsvUrl"
+                target="_blank"
+                class="pill-btn bg-emerald-50 text-emerald-800 border-emerald-300 font-bold hover:bg-emerald-100 flex items-center gap-1 ml-2"
+                title="Baixar relatórios de leads em formato CSV / Excel">
+                📊 Exportar CSV
+              </a>
             </div>
           </div>
         </div>
@@ -153,6 +219,12 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
                   <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                     {{ b.category }}
                   </span>
+                  <span *ngIf="b.source" class="text-[10px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded ml-1" [title]="'Fonte dos dados: ' + b.source">
+                    🗺️ {{ b.source }}
+                  </span>
+                  <span *ngIf="b.ownerName" class="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded ml-1" [title]="'Dono/Sócio: ' + b.ownerName">
+                    👑 {{ b.ownerName }}
+                  </span>
                   <h3 class="font-bold text-slate-900 text-base mt-1">{{ b.name }}</h3>
                   <div class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                     📍 {{ b.address }}
@@ -172,7 +244,7 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
               </div>
 
               <!-- Website & Domain status indicator -->
-              <div class="my-2 flex items-center gap-1.5 flex-wrap">
+              <div class="my-2 flex items-center flex-wrap" style="gap: 0.375rem">
                 <span
                   class="badge text-xs"
                   [ngClass]="b.website ? 'badge-has-site' : 'badge-no-site'">
@@ -203,7 +275,7 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
 
               <!-- Actions -->
               <div class="card-actions-bar">
-                <div class="flex items-center gap-1.5 flex-wrap">
+                <div class="flex items-center flex-wrap" style="gap: 0.375rem">
                   <button
                     type="button"
                     class="btn btn-outline btn-sm"
@@ -282,6 +354,49 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
       max-width: 1300px;
       margin: 0 auto;
     }
+
+    /* Search Form Card */
+    .search-form-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+      border: 1px solid var(--border-light, #e8edf4);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    .search-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-header-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #3b7cf8, #6366f1);
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(59, 124, 248, 0.3);
+    }
+
+    .search-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .search-subtitle {
+      font-size: 0.8125rem;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
     .search-form-grid {
       display: grid;
       grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
@@ -293,58 +408,70 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
         grid-template-columns: 1fr;
       }
     }
-    .form-group {
+    .relative {
+      position: relative;
+    }
+    .autocomplete-input-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .location-autocomplete-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.14), 0 4px 10px -3px rgba(15, 23, 42, 0.06);
+      z-index: 9999;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .autocomplete-item {
+      padding: 10px 14px;
       display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.12s ease;
     }
-    .form-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #334155;
-    }
+    .autocomplete-item:first-child { border-radius: 10px 10px 0 0; }
+    .autocomplete-item:last-child { border-bottom: none; border-radius: 0 0 10px 10px; }
+    .autocomplete-item:hover { background-color: #f8fafc; }
+    .autocomplete-icon { font-size: 0.9rem; color: #3b7cf8; }
+    .autocomplete-title { font-weight: 600; font-size: 0.85rem; color: #0f172a; }
+    .autocomplete-subtext { font-size: 0.72rem; color: #64748b; margin-top: 1px; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
     .form-input {
-      padding: 0.625rem 0.85rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.5rem;
+      width: 100%;
+      padding: 0.6rem 0.875rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
       font-size: 0.875rem;
       background: #ffffff;
       outline: none;
-      transition: border-color 0.15s ease;
-      font-family: inherit;
-    }
-    .form-input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    }
-    .search-btn {
-      height: 42px;
-    }
-    .filter-pills {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .pill-btn {
-      padding: 0.35rem 0.75rem;
-      border-radius: 9999px;
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      font-size: 0.775rem;
-      font-weight: 600;
-      color: #64748b;
-      cursor: pointer;
       transition: all 0.15s ease;
-    }
-    .pill-btn:hover {
-      border-color: #cbd5e1;
+      font-family: inherit;
+      font-weight: 500;
       color: #0f172a;
+      appearance: none;
     }
-    .pill-btn.active {
-      background: #2563eb;
-      color: #ffffff;
-      border-color: #2563eb;
+    .form-input:hover { border-color: #cbd5e1; }
+    .form-input:focus {
+      border-color: #3b7cf8;
+      box-shadow: 0 0 0 3px rgba(59, 124, 248, 0.12);
     }
+    .form-input::placeholder { color: #94a3b8; font-weight: 400; }
+    select.form-input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      padding-right: 2.25rem;
+    }
+    .search-btn { height: 42px; }
+    .filter-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .split-view {
       display: grid;
       grid-template-columns: 1.1fr 1fr;
@@ -352,43 +479,38 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
       height: 720px;
     }
     @media (max-width: 960px) {
-      .split-view {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
+      .split-view { grid-template-columns: 1fr; height: auto; }
     }
     .map-column {
       height: 100%;
       min-height: 520px;
-      border-radius: 0.75rem;
+      border-radius: 14px;
       overflow: hidden;
       position: relative;
       background-color: #f1f5f9;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.07);
     }
-    .map-view {
-      width: 100%;
-      height: 100%;
-      min-height: 520px;
-    }
+    .map-view { width: 100%; height: 100%; min-height: 520px; }
     .list-column {
       height: 100%;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.875rem;
-      padding-right: 4px;
+      gap: 0.75rem;
+      padding-right: 3px;
     }
     .business-card {
-      transition: all 0.15s ease;
-      border-left: 4px solid transparent;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 3px solid transparent;
     }
     .business-card:hover {
-      border-left-color: #2563eb;
-      transform: translateY(-1px);
+      border-left-color: #3b7cf8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(15,23,42,0.09);
     }
     .business-card.selected {
-      border-left-color: #2563eb;
-      background-color: #f0f7ff;
+      border-left-color: #3b7cf8;
+      background: linear-gradient(135deg, #f0f7ff, #f5f0ff);
     }
     .p-6 { padding: 1.5rem; }
     .p-4 { padding: 1rem; }
@@ -399,26 +521,25 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
     .items-center { align-items: center; }
     .justify-between { justify-content: space-between; }
     .gap-1 { gap: 0.25rem; }
+    .gap-15 { gap: 0.375rem; }
     .gap-3 { gap: 0.75rem; }
     .gap-4 { gap: 1rem; }
     .flex-wrap { flex-wrap: wrap; }
     .progress-bar-bg {
-      height: 6px;
-      background: #e2e8f0;
+      height: 5px;
+      background: #f1f5f9;
       border-radius: 9999px;
       overflow: hidden;
     }
     .progress-bar-fill {
       height: 100%;
       border-radius: 9999px;
+      transition: width 0.5s ease;
     }
-    .fill-high { background: #10b981; }
-    .fill-medium { background: #f59e0b; }
-    .fill-low { background: #94a3b8; }
-    .card-progress-section {
-      margin-top: 0.75rem;
-      margin-bottom: 0.95rem;
-    }
+    .fill-high { background: linear-gradient(90deg, #10b981, #34d399); }
+    .fill-medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .fill-low { background: #cbd5e1; }
+    .card-progress-section { margin: 0.75rem 0 0.9rem; }
     .card-actions-bar {
       display: flex;
       align-items: center;
@@ -427,6 +548,115 @@ import { DemoPreviewModalComponent } from '../../shared/components/demo-preview-
       border-top: 1px solid #f1f5f9;
       gap: 0.5rem;
       flex-wrap: wrap;
+    }
+    .results-header {
+      border-radius: 14px;
+    }
+
+    /* Spinner animation */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Loading progress bar */
+    .search-loading-bar {
+      margin-top: 0.875rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #f0f7ff, #f5f0ff);
+      border: 1px solid #c7d8fc;
+      border-radius: 10px;
+    }
+    .search-loading-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #3b7cf8;
+      margin-bottom: 0.6rem;
+    }
+    .search-loading-dot {
+      width: 7px;
+      height: 7px;
+      background: #3b7cf8;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    .search-loading-track {
+      height: 4px;
+      background: #dce8fe;
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .search-loading-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b7cf8, #6366f1, #3b7cf8);
+      background-size: 200% 100%;
+      border-radius: 9999px;
+      animation: loading-shimmer 1.5s linear infinite;
+    }
+    @keyframes loading-shimmer {
+      0% { background-position: 100% center; width: 20%; }
+      50% { width: 70%; }
+      100% { background-position: -100% center; width: 90%; }
+    }
+
+    /* Welcome / empty state */
+    .welcome-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      animation: fadeIn 0.35s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .welcome-icon {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #eef5ff, #ede9fe);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      color: #3b7cf8;
+      border: 1.5px solid #c7d8fc;
+    }
+    .welcome-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .welcome-text {
+      font-size: 0.875rem;
+      color: #64748b;
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.6;
+    }
+    .welcome-tips {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .tip-item {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      border: 1px solid #e8edf4;
+      border-radius: 9999px;
+      padding: 0.35rem 0.875rem;
     }
   `]
 })
@@ -441,6 +671,88 @@ export class SearchComponent implements OnInit, OnDestroy {
   customCategory: string = '';
   isCustomCategory: boolean = false;
   radius: number = 5000;
+
+  showLocationDropdown: boolean = false;
+  locationSuggestions: Array<{ mainText: string; subText?: string; fullText: string }> = [];
+
+  private popularLocations: Array<{ mainText: string; subText: string; fullText: string }> = [
+    { mainText: 'Belo Horizonte - MG', subText: 'Capital • Minas Gerais', fullText: 'Belo Horizonte - MG' },
+    { mainText: 'Savassi', subText: 'Bairro • Belo Horizonte - MG', fullText: 'Savassi, Belo Horizonte - MG' },
+    { mainText: 'Pampulha', subText: 'Bairro • Belo Horizonte - MG', fullText: 'Pampulha, Belo Horizonte - MG' },
+    { mainText: 'Centro', subText: 'Bairro • Belo Horizonte - MG', fullText: 'Centro, Belo Horizonte - MG' },
+    { mainText: 'Lourdes', subText: 'Bairro • Belo Horizonte - MG', fullText: 'Lourdes, Belo Horizonte - MG' },
+    { mainText: 'São Paulo - SP', subText: 'Capital • São Paulo', fullText: 'São Paulo - SP' },
+    { mainText: 'Tatuapé', subText: 'Bairro • São Paulo - SP', fullText: 'Tatuapé, São Paulo - SP' },
+    { mainText: 'Moema', subText: 'Bairro • São Paulo - SP', fullText: 'Moema, São Paulo - SP' },
+    { mainText: 'Pinheiros', subText: 'Bairro • São Paulo - SP', fullText: 'Pinheiros, São Paulo - SP' },
+    { mainText: 'Anália Franco', subText: 'Bairro • São Paulo - SP', fullText: 'Anália Franco, São Paulo - SP' },
+    { mainText: 'Vila Madalena', subText: 'Bairro • São Paulo - SP', fullText: 'Vila Madalena, São Paulo - SP' },
+    { mainText: 'Itaim Bibi', subText: 'Bairro • São Paulo - SP', fullText: 'Itaim Bibi, São Paulo - SP' },
+    { mainText: 'Santana', subText: 'Bairro • São Paulo - SP', fullText: 'Santana, São Paulo - SP' },
+    { mainText: 'Mooca', subText: 'Bairro • São Paulo - SP', fullText: 'Mooca, São Paulo - SP' },
+    { mainText: 'Jardins', subText: 'Bairro • São Paulo - SP', fullText: 'Jardins, São Paulo - SP' },
+    { mainText: 'Rio de Janeiro - RJ', subText: 'Capital • Rio de Janeiro', fullText: 'Rio de Janeiro - RJ' },
+    { mainText: 'Copacabana', subText: 'Bairro • Rio de Janeiro - RJ', fullText: 'Copacabana, Rio de Janeiro - RJ' },
+    { mainText: 'Ipanema', subText: 'Bairro • Rio de Janeiro - RJ', fullText: 'Ipanema, Rio de Janeiro - RJ' },
+    { mainText: 'Barra da Tijuca', subText: 'Bairro • Rio de Janeiro - RJ', fullText: 'Barra da Tijuca, Rio de Janeiro - RJ' },
+    { mainText: 'Niterói - RJ', subText: 'Região Metropolitana • Rio de Janeiro', fullText: 'Niterói - RJ' },
+    { mainText: 'Curitiba - PR', subText: 'Capital • Paraná', fullText: 'Curitiba - PR' },
+    { mainText: 'Batel', subText: 'Bairro • Curitiba - PR', fullText: 'Batel, Curitiba - PR' },
+    { mainText: 'Porto Alegre - RS', subText: 'Capital • Rio Grande do Sul', fullText: 'Porto Alegre - RS' },
+    { mainText: 'Florianópolis - SC', subText: 'Capital • Santa Catarina', fullText: 'Florianópolis - SC' },
+    { mainText: 'Brasília - DF', subText: 'Distrito Federal', fullText: 'Brasília - DF' },
+    { mainText: 'Salvador - BA', subText: 'Capital • Bahia', fullText: 'Salvador - BA' },
+    { mainText: 'Recife - PE', subText: 'Capital • Pernambuco', fullText: 'Recife - PE' },
+    { mainText: 'Fortaleza - CE', subText: 'Capital • Ceará', fullText: 'Fortaleza - CE' },
+    { mainText: 'Goiânia - GO', subText: 'Capital • Goiás', fullText: 'Goiânia - GO' },
+    { mainText: 'Campinas - SP', subText: 'São Paulo', fullText: 'Campinas - SP' },
+    { mainText: 'Ribeirão Preto - SP', subText: 'São Paulo', fullText: 'Ribeirão Preto - SP' },
+    { mainText: 'São José dos Campos - SP', subText: 'São Paulo', fullText: 'São José dos Campos - SP' },
+    { mainText: 'Santo André - SP', subText: 'São Paulo (ABC)', fullText: 'Santo André - SP' },
+    { mainText: 'São Bernardo do Campo - SP', subText: 'São Paulo (ABC)', fullText: 'São Bernardo do Campo - SP' },
+    { mainText: 'Osasco - SP', subText: 'São Paulo', fullText: 'Osasco - SP' },
+    { mainText: 'Santos - SP', subText: 'Litoral • São Paulo', fullText: 'Santos - SP' },
+    { mainText: 'Guarulhos - SP', subText: 'São Paulo', fullText: 'Guarulhos - SP' },
+    { mainText: 'Uberlândia - MG', subText: 'Triângulo Mineiro • Minas Gerais', fullText: 'Uberlândia - MG' },
+    { mainText: 'Juiz de Fora - MG', subText: 'Minas Gerais', fullText: 'Juiz de Fora - MG' },
+    { mainText: 'Contagem - MG', subText: 'Região Metropolitana • Belo Horizonte', fullText: 'Contagem - MG' },
+    { mainText: 'Manaus - AM', subText: 'Capital • Amazonas', fullText: 'Manaus - AM' },
+    { mainText: 'Belém - PA', subText: 'Capital • Pará', fullText: 'Belém - PA' },
+    { mainText: 'Vitória - ES', subText: 'Capital • Espírito Santo', fullText: 'Vitória - ES' }
+  ];
+
+  onLocationInput() {
+    if (!this.location || this.location.trim().length < 1) {
+      this.locationSuggestions = this.popularLocations.slice(0, 6);
+      this.showLocationDropdown = true;
+      return;
+    }
+
+    const term = this.location.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const matches = this.popularLocations.filter(loc => {
+      const normMain = loc.mainText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const normSub = loc.subText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return normMain.includes(term) || normSub.includes(term);
+    });
+
+    this.locationSuggestions = matches.slice(0, 8);
+    this.showLocationDropdown = true;
+  }
+
+  onLocationFocus() {
+    this.onLocationInput();
+  }
+
+  onLocationBlur() {
+    setTimeout(() => {
+      this.showLocationDropdown = false;
+    }, 200);
+  }
+
+  selectLocation(item: { mainText: string; subText?: string; fullText: string }) {
+    this.location = item.fullText;
+    this.showLocationDropdown = false;
+  }
 
   loading: boolean = false;
   searched: boolean = false;
@@ -484,7 +796,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private markersLayer: L.LayerGroup | null = null;
 
   ngOnInit() {
-    this.onSearch();
+    // Não inicia busca automaticamente — usuário deve clicar em "Buscar"
   }
 
   ngOnDestroy() {
@@ -730,5 +1042,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (bounds.isValid()) {
       this.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
     }
+  }
+
+  get exportCsvUrl(): string {
+    return this.searchService.getCsvExportUrl(this.selectedCategory, this.activeFilter);
   }
 }

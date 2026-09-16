@@ -667,11 +667,16 @@ export class DemoPreviewModalComponent implements OnInit, OnDestroy {
     if (this.demoData && this.demoData.whatsappPitchWithDemo) {
       pitch = this.demoData.whatsappPitchWithDemo;
     } else {
-      pitch = `Olá! Tudo bem? Falo com o responsável pela ${this.business.name}? 👋\n\n` +
-              `Notei que vocês ainda não tinham um site próprio oficial, então preparei uma demonstração exclusiva de como ficaria a presença digital de vocês no Google:\n` +
+      pitch = `Olá! Eu falo com o responsável da ${this.business.name}?\n\n` +
+              `Olá! Tudo bem? Meu nome é *Matheus Goulart*, sou estudante de *Engenharia de Software* e trabalho com desenvolvimento de sites.\n\n` +
+              `Encontrei a empresa de vocês pelo Google e percebi que vocês ainda não possuem um *site próprio*. Por isso, gostaria de apresentar meu trabalho e oferecer uma solução que pode ajudar a empresa a ter uma presença mais profissional na internet.\n\n` +
+              `Hoje, muitos clientes pesquisam uma empresa no Google antes de entrar em contato ou realizar uma compra. Um site próprio pode ajudar vocês a *serem encontrados por mais pessoas, apresentar os serviços/produtos, mostrar informações importantes e facilitar o contato com novos clientes*.\n\n` +
+              `Eu posso desenvolver um site moderno, responsivo e personalizado para a empresa, pensado de acordo com o negócio e com os objetivos de vocês.\n\n` +
+              `Inclusive, preparei uma demonstração exclusiva de como ficaria a presença digital de vocês no Google:\n` +
               `👉 ${this.demoUrl}\n\n` +
-              (this.business.domainAvailable && this.business.suggestedDomain ? `Além disso, o domínio [${this.business.suggestedDomain}] está DISPONÍVEL para registro agora!\n\n` : '') +
-              `O que achou da prévia? Teria 2 minutos para conversarmos?`;
+              (this.business.domainAvailable && this.business.suggestedDomain ? `Além disso, o domínio [${this.business.suggestedDomain}] está *DISPONÍVEL* para registro agora!\n\n` : '') +
+              `Se tiverem alguns minutos, é só responder esta mensagem e podemos marcar uma breve reunião para eu apresentar a ideia e mostrar como o site poderia funcionar para vocês.\n\n` +
+              `Fico à disposição! 🚀`;
     }
 
     const encoded = encodeURIComponent(pitch);
