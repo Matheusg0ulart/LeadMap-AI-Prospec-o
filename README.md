@@ -19,9 +19,9 @@ sem site, ela **cria o site de cada um antes do primeiro contato** e manda a pro
 | Entrega | — | 1 clique: site no domínio do cliente, hospedagem grátis |
 
 **Veja funcionando (exemplos reais de barbearias do Tatuapé/SP):**
-[site gerado](https://yago-silva-ads.github.io/leadforge-demos/s/meu-barbeiro-tatuape/) ·
-[proposta com Pix](https://yago-silva-ads.github.io/leadforge-demos/p/meu-barbeiro-tatuape/) ·
-[todos os sites publicados](https://yago-silva-ads.github.io/leadforge-demos/)
+[site gerado](https://yago-silva-ads.github.io/leadforge/s/meu-barbeiro-tatuape/) ·
+[proposta com Pix](https://yago-silva-ads.github.io/leadforge/p/meu-barbeiro-tatuape/) ·
+[todos os sites publicados](https://yago-silva-ads.github.io/leadforge/)
 
 **Modelo de receita:** R$ 497 de criação + R$ 59/mês de hospedagem por cliente, com custo de infraestrutura R$ 0.
 
