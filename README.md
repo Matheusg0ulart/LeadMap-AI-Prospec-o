@@ -4,6 +4,33 @@ O **LeadMap AI** é uma plataforma SaaS completa para identificação, qualifica
 
 ---
 
+## ⚡ Nova frente: LeadForge Sites (máquina de vendas, custo zero)
+
+Evolução do LeadMap criada por [@yago-silva-ads](https://github.com/yago-silva-ads): em vez de só **listar** os negócios
+sem site, ela **cria o site de cada um antes do primeiro contato** e manda a proposta pronta para fechar.
+
+| | LeadMap AI (este repo) | LeadForge Sites |
+|---|---|---|
+| Busca | Google Places (pago) / OSM | **robô no Google Maps, grátis** (nome, telefone, nota, nº de avaliações) |
+| "Sem site" | campo vazio | **abre o link**: sem site, só Instagram/iFood/Linktree ou site fora do ar |
+| Site | prévia | **site completo por ramo**, publicado com link público |
+| Proposta | — | carta com domínio livre (Registro.br), preço e **QR Code Pix** |
+| Contato | botão manual | **n8n**: e-mail automático + cartão no Telegram com WhatsApp de 1 toque, follow-ups, SAIR |
+| Entrega | — | 1 clique: site no domínio do cliente, hospedagem grátis |
+
+**Veja funcionando (exemplos reais de barbearias do Tatuapé/SP):**
+[site gerado](https://yago-silva-ads.github.io/leadforge-demos/s/meu-barbeiro-tatuape/) ·
+[proposta com Pix](https://yago-silva-ads.github.io/leadforge-demos/p/meu-barbeiro-tatuape/) ·
+[todos os sites publicados](https://yago-silva-ads.github.io/leadforge-demos/)
+
+**Modelo de receita:** R$ 497 de criação + R$ 59/mês de hospedagem por cliente, com custo de infraestrutura R$ 0.
+
+O código do LeadForge fica num repositório privado: [yago-silva-ads/leadforge-sites](https://github.com/yago-silva-ads/leadforge-sites)
+(peça acesso ao Yago). Ideias do LeadMap reaproveitadas lá: score de lead, checagem RDAP do Registro.br e
+abordagem pronta pelo WhatsApp.
+
+---
+
 ## 🚀 Funcionalidades Principais
 
 - **Pesquisa Geográfica Inteligente:**
